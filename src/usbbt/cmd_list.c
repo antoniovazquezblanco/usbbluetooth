@@ -2,10 +2,15 @@
 
 #include <usbbluetooth.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 static void print_dev(usbbluetooth_device_t *dev)
 {
-    printf("Device %04x:%04x @ 0x%p\n", dev->vendor_id, dev->product_id, dev);
+    usbbluetooth_open(dev);
+    char *desc = usbbluetooth_device_description(dev);
+    printf("Device %s @ 0x%p\n", desc, dev);
+    free(desc);
+    usbbluetooth_close(dev);
 }
 
 static void print_devs(usbbluetooth_device_t **devs)

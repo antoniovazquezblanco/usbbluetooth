@@ -1,8 +1,10 @@
 #include <usbbluetooth_device.h>
 
-#include <stdlib.h>
-#include <utils.h>
 #include <usbbluetooth_log.h>
+#include <utils.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 static int _count_bluetooth_devices(libusb_device **list, int *num);
 static usbbluetooth_device_t *_dev_from_libusb(libusb_device *dev);
@@ -81,19 +83,14 @@ static int _count_bluetooth_devices(libusb_device **list, int *num)
 
 static usbbluetooth_device_t *_dev_from_libusb(libusb_device *dev)
 {
+    usbbluetooth_log_debug("_dev_from_libusb[dev=%p]", dev);
     usbbluetooth_device_t *btdev = calloc(1, sizeof(usbbluetooth_device_t));
     btdev->ref_count = 0;
     btdev->type = USBBLUETOOTH_DEVICE_TYPE_USB;
     btdev->device.usb = libusb_ref_device(dev);
-    struct libusb_device_descriptor desc;
-    libusb_get_device_descriptor(dev, &desc);
-    btdev->vendor_id = desc.idVendor;
-    btdev->product_id = desc.idProduct;
-    btdev->handle = NULL;
-    btdev->interface_num = 0;
-    btdev->epnum_evt = 0;
-    btdev->epnum_acl_in = 0;
-    btdev->epnum_acl_out = 0;
+    usbbluetooth_device_ctx_usb_t *ctx = calloc(1, sizeof(usbbluetooth_device_ctx_usb_t));
+    memset(ctx, 0, sizeof(usbbluetooth_device_ctx_usb_t));
+    btdev->context.usb = ctx;
     return btdev;
 }
 
@@ -115,8 +112,9 @@ void USBBLUETOOTH_CALL usbbluetooth_free_device_list(usbbluetooth_device_t ***li
     *list = NULL;
 }
 
-usbbluetooth_device_t * USBBLUETOOTH_CALL usbbluetooth_reference_device(usbbluetooth_device_t *dev)
+usbbluetooth_device_t *USBBLUETOOTH_CALL usbbluetooth_reference_device(usbbluetooth_device_t *dev)
 {
+    usbbluetooth_log_debug("usbbluetooth_reference_device[dev=%p]\n", dev);
     dev->ref_count++;
     return dev;
 }
@@ -124,14 +122,95 @@ usbbluetooth_device_t * USBBLUETOOTH_CALL usbbluetooth_reference_device(usbbluet
 void USBBLUETOOTH_CALL usbbluetooth_unreference_device(usbbluetooth_device_t **dev_ptr)
 {
     if (dev_ptr == NULL || *dev_ptr == NULL)
-		return;
+        return;
 
     usbbluetooth_device_t *dev = *dev_ptr;
     dev->ref_count--;
-    
-    if (dev->ref_count == 0) {
+
+    if (dev->ref_count == 0)
+    {
         libusb_unref_device(dev->device.usb);
+        free(dev->context.usb);
         free(dev);
         *dev_ptr = NULL;
     }
+}
+
+void USBBLUETOOTH_CALL usbbluetooth_device_vid_pid(usbbluetooth_device_t *dev, uint16_t *vid, uint16_t *pid)
+{
+    struct libusb_device_descriptor desc;
+    libusb_get_device_descriptor(dev->device.usb, &desc);
+    *vid = desc.idVendor;
+    *pid = desc.idProduct;
+}
+
+char *_usb_get_descriptor_ascii(libusb_device_handle *dev_handle, uint8_t desc_num)
+{
+    if (dev_handle == NULL)
+        return NULL;
+    char tmp[256];
+    int r = libusb_get_string_descriptor_ascii(dev_handle, desc_num, (uint8_t *)tmp, sizeof(tmp));
+    if (r < LIBUSB_SUCCESS)
+        return NULL;
+    tmp[r] = 0;
+    return strdup(tmp);
+}
+
+char *USBBLUETOOTH_CALL usbbluetooth_device_manufacturer(usbbluetooth_device_t *dev)
+{
+    struct libusb_device_descriptor desc;
+    libusb_get_device_descriptor(dev->device.usb, &desc);
+    if (desc.iManufacturer == 0)
+        return NULL;
+    return _usb_get_descriptor_ascii(dev->context.usb->handle, desc.iManufacturer);
+}
+
+char *USBBLUETOOTH_CALL usbbluetooth_device_product(usbbluetooth_device_t *dev)
+{
+    struct libusb_device_descriptor desc;
+    libusb_get_device_descriptor(dev->device.usb, &desc);
+    if (desc.iProduct == 0)
+        return NULL;
+    return _usb_get_descriptor_ascii(dev->context.usb->handle, desc.iProduct);
+}
+
+char *USBBLUETOOTH_CALL usbbluetooth_device_serial_num(usbbluetooth_device_t *dev)
+{
+    struct libusb_device_descriptor desc;
+    libusb_get_device_descriptor(dev->device.usb, &desc);
+    if (desc.iSerialNumber == 0)
+        return NULL;
+    return _usb_get_descriptor_ascii(dev->context.usb->handle, desc.iSerialNumber);
+}
+
+char *USBBLUETOOTH_CALL usbbluetooth_device_description(usbbluetooth_device_t *dev)
+{
+    // Get USB descriptor
+    struct libusb_device_descriptor desc;
+    libusb_get_device_descriptor(dev->device.usb, &desc);
+// Create a tmp string with VID and PID
+#define MAX_LEN 256
+    uint16_t len_rem = MAX_LEN;
+    char tmp[MAX_LEN];
+    len_rem -= snprintf(tmp, len_rem, "VID=0x%04x PID=0x%04x", desc.idVendor, desc.idProduct);
+    // Add accesory info if available
+    char *manuf = _usb_get_descriptor_ascii(dev->context.usb->handle, desc.iManufacturer);
+    if (manuf)
+    {
+        len_rem -= snprintf(tmp + strlen(tmp), len_rem, " %s", manuf);
+        free(manuf);
+    }
+    char *prod = _usb_get_descriptor_ascii(dev->context.usb->handle, desc.iProduct);
+    if (prod)
+    {
+        len_rem -= snprintf(tmp + strlen(tmp), len_rem, " %s", prod);
+        free(prod);
+    }
+    char *sernum = _usb_get_descriptor_ascii(dev->context.usb->handle, desc.iSerialNumber);
+    if (sernum)
+    {
+        len_rem -= snprintf(tmp + strlen(tmp), len_rem, " %s", sernum);
+        free(sernum);
+    }
+    return strdup(tmp);
 }

@@ -26,7 +26,6 @@
                     return;
                 case UsbBluetoothStatus.ERR_UNK:
                     throw new UnknownException();
-                    break;
                 case UsbBluetoothStatus.ERR_NO_MEM:
                     throw new OutOfMemoryException();
                 case UsbBluetoothStatus.ERR_DEVICE_CLOSED:

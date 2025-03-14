@@ -6,6 +6,11 @@ EXPORTS
     usbbluetooth_free_device_list
     usbbluetooth_reference_device
     usbbluetooth_unreference_device
+    usbbluetooth_device_vid_pid
+    usbbluetooth_device_manufacturer
+    usbbluetooth_device_product
+    usbbluetooth_device_serial_num
+    usbbluetooth_device_description
     usbbluetooth_status_name
     usbbluetooth_open
     usbbluetooth_close

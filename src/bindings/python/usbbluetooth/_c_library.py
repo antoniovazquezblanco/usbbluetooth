@@ -48,13 +48,7 @@ class _CDevice(ctypes.Structure):
     _fields_ = (("ref_count", ctypes.c_uint8),
                 ("type", ctypes.c_int),
                 ("device", ctypes.c_voidp),
-                ("vendor_id", ctypes.c_uint16),
-                ("product_id", ctypes.c_uint16),
-                ("handle", ctypes.c_voidp),
-                ("interface_num", ctypes.c_uint8),
-                ("epnum_evt", ctypes.c_uint8),
-                ("epnum_acl_in", ctypes.c_uint8),
-                ("epnum_acl_out", ctypes.c_uint8))
+                ("context", ctypes.c_voidp))
 
 
 def _setup_func(lib, fname, restype, argtypes) -> None:
@@ -82,6 +76,16 @@ _setup_func(_lib, "usbbluetooth_reference_device", ctypes.POINTER(_CDevice),
             [ctypes.POINTER(_CDevice)])
 _setup_func(_lib, "usbbluetooth_unreference_device", None,
             [ctypes.POINTER(ctypes.POINTER(_CDevice))])
+_setup_func(_lib, "usbbluetooth_device_vid_pid", None,
+            [ctypes.POINTER(_CDevice), ctypes.POINTER(ctypes.c_uint16), ctypes.POINTER(ctypes.c_uint16)])
+_setup_func(_lib, "usbbluetooth_device_manufacturer", ctypes.c_char_p,
+            [ctypes.POINTER(_CDevice)])
+_setup_func(_lib, "usbbluetooth_device_product", ctypes.c_char_p,
+            [ctypes.POINTER(_CDevice)])
+_setup_func(_lib, "usbbluetooth_device_serial_num", ctypes.c_char_p,
+            [ctypes.POINTER(_CDevice)])
+_setup_func(_lib, "usbbluetooth_device_description", ctypes.c_char_p,
+            [ctypes.POINTER(_CDevice)])
 _setup_func(_lib, "usbbluetooth_open", _CStatus,
             [ctypes.POINTER(_CDevice)])
 _setup_func(_lib, "usbbluetooth_close", None,

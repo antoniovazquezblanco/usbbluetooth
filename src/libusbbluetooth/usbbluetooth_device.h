@@ -15,6 +15,19 @@ typedef enum
     USBBLUETOOTH_DEVICE_TYPE_SERIAL = 1
 } usbbluetooth_device_type_t;
 
+
+/**
+ * USB device context structure.
+ */
+typedef struct
+{
+    libusb_device_handle *handle;
+    uint8_t interface_num;
+    uint8_t epnum_evt;
+    uint8_t epnum_acl_in;
+    uint8_t epnum_acl_out;
+} usbbluetooth_device_ctx_usb_t;
+
 /**
  * USB Bluetooth device struct.
  */
@@ -26,13 +39,10 @@ typedef struct
     {
         libusb_device *usb;
     } device;
-    uint16_t vendor_id;
-    uint16_t product_id;
-    libusb_device_handle *handle;
-    uint8_t interface_num;
-    uint8_t epnum_evt;
-    uint8_t epnum_acl_in;
-    uint8_t epnum_acl_out;
+    union
+    {
+        usbbluetooth_device_ctx_usb_t *usb;
+    } context;
 } usbbluetooth_device_t;
 
 /**
@@ -54,5 +64,37 @@ usbbluetooth_device_t *USBBLUETOOTH_CALL usbbluetooth_reference_device(usbblueto
  * Unreference the device to free memory.
  */
 void USBBLUETOOTH_CALL usbbluetooth_unreference_device(usbbluetooth_device_t **dev);
+
+/**
+ * Get device VID and PID.
+ */
+void USBBLUETOOTH_CALL usbbluetooth_device_vid_pid(usbbluetooth_device_t *dev, uint16_t *vid, uint16_t *pid);
+
+/**
+ * Get device manufacturer description.
+ * Due to current libusb implementations, it may be required for the device to be open to be able to retrieve this information.
+ * The user is reponsible for freeing the string after its use.
+ */
+char *USBBLUETOOTH_CALL usbbluetooth_device_manufacturer(usbbluetooth_device_t *dev);
+
+/**
+ * Get device product description.
+ * Due to current libusb implementations, it may be required for the device to be open to be able to retrieve this information.
+ * The user is reponsible for freeing the string after its use.
+ */
+char *USBBLUETOOTH_CALL usbbluetooth_device_product(usbbluetooth_device_t *dev);
+
+/**
+ * Get device serial number.
+ * Due to current libusb implementations, it may be required for the device to be open to be able to retrieve this information.
+ * The user is reponsible for freeing the string after its use.
+ */
+char *USBBLUETOOTH_CALL usbbluetooth_device_serial_num(usbbluetooth_device_t *dev);
+
+/**
+ * Get an user friendly representation of a device in text form.
+ * The user is reponsible for freeing the string after its use.
+ */
+char *USBBLUETOOTH_CALL usbbluetooth_device_description(usbbluetooth_device_t *dev);
 
 #endif

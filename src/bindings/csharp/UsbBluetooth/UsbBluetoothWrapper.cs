@@ -15,11 +15,7 @@ namespace UsbBluetooth
             byte ref_count;
             int type;
             void* device;
-            public ushort vendor_id;
-            public ushort product_id;
-            void* handle;
-            byte interface_num;
-            byte epnum_evt;
+            void* context;
         }
 
         [DllImport("libusbbluetooth")]
@@ -33,6 +29,21 @@ namespace UsbBluetooth
 
         [DllImport("libusbbluetooth")]
         internal unsafe static extern void usbbluetooth_unreference_device(UsbBluetoothDeviceStruct** dev);
+
+        [DllImport("libusbbluetooth")]
+        internal unsafe static extern void usbbluetooth_device_vid_pid(UsbBluetoothDeviceStruct* dev, ushort *vid, ushort *pid);
+
+        [DllImport("libusbbluetooth")]
+        internal unsafe static extern IntPtr usbbluetooth_device_manufacturer(UsbBluetoothDeviceStruct* dev);
+
+        [DllImport("libusbbluetooth")]
+        internal unsafe static extern IntPtr usbbluetooth_device_product(UsbBluetoothDeviceStruct* dev);
+
+        [DllImport("libusbbluetooth")]
+        internal unsafe static extern IntPtr usbbluetooth_device_serial_num(UsbBluetoothDeviceStruct* dev);
+
+        [DllImport("libusbbluetooth")]
+        internal unsafe static extern IntPtr usbbluetooth_device_description(UsbBluetoothDeviceStruct* dev);
 
         [DllImport("libusbbluetooth")]
         internal unsafe static extern UsbBluetoothStatus usbbluetooth_open(UsbBluetoothDeviceStruct* dev);

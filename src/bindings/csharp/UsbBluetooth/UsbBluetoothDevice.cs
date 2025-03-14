@@ -1,4 +1,6 @@
-﻿using static UsbBluetooth.UsbBluetoothWrapper;
+﻿using System;
+using System.Runtime.InteropServices;
+using static UsbBluetooth.UsbBluetoothWrapper;
 
 namespace UsbBluetooth
 {
@@ -58,9 +60,38 @@ namespace UsbBluetooth
             }
         }
 
+        public unsafe void GetVidPid(ushort *vid, ushort *pid)
+        {
+            usbbluetooth_device_vid_pid(m_BluetoothDeviceStruct, vid, pid);
+        }
+
+        public unsafe String GetManufacturer()
+        {
+            IntPtr manuf = usbbluetooth_device_manufacturer(m_BluetoothDeviceStruct);
+            return Marshal.PtrToStringAnsi(manuf);
+        }
+
+        public unsafe string GetProduct()
+        {
+            IntPtr prod = usbbluetooth_device_product(m_BluetoothDeviceStruct);
+            return Marshal.PtrToStringAnsi(prod);
+        }
+
+        public unsafe string GetSerialNumber()
+        {
+            IntPtr sn = usbbluetooth_device_serial_num(m_BluetoothDeviceStruct);
+            return Marshal.PtrToStringAnsi(sn);
+        }
+
+        public unsafe string GetDescription()
+        {
+            IntPtr desc = usbbluetooth_device_description(m_BluetoothDeviceStruct);
+            return Marshal.PtrToStringAnsi(desc);
+        }
+
         public unsafe override string ToString()
         {
-            return "UsbBluetoothDevice[vid=0x" + m_BluetoothDeviceStruct->vendor_id.ToString("x4") + ",pid=0x" + m_BluetoothDeviceStruct->product_id.ToString("x4") + "]";
+            return "UsbBluetoothDevice[" + GetDescription() + "]";
         }
     }
 }

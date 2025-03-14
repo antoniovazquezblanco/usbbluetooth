@@ -1,14 +1,17 @@
 #include "cmd_reset.h"
 
+#include <usbbluetooth.h>
 #include <stdio.h>
 #include <string.h>
-#include <usbbluetooth.h>
+#include <stdlib.h>
 
 #define BUFFSIZE 64
 
 static usbbluetooth_status_t reset_dev(usbbluetooth_device_t *dev)
 {
-    printf("Opening %04x:%04x @ 0x%p\n", dev->vendor_id, dev->product_id, dev);
+    char *desc = usbbluetooth_device_description(dev);
+    printf("Opening %s @ 0x%p\n", desc, dev);
+    free(desc);
 
     usbbluetooth_status_t r = usbbluetooth_open(dev);
     if (r != USBBLUETOOTH_STATUS_OK)
@@ -16,6 +19,10 @@ static usbbluetooth_status_t reset_dev(usbbluetooth_device_t *dev)
         fprintf(stderr, "Could not open device (r=%d, s=%s)\n", (int)r, usbbluetooth_status_name(r));
         goto exit;
     }
+
+    desc = usbbluetooth_device_description(dev);
+    printf("Device description: %s @ 0x%p\n", desc, dev);
+    free(desc);
 
     // Send encoded HCI reset
     r = usbbluetooth_write(dev, (uint8_t *)"\x01\x03\x0c\x00", 4);
@@ -77,6 +84,7 @@ int cmd_reset()
         goto exit;
     }
 
+    printf("Resetting devices:\n");
     reset_devs(devs);
 
 exit:
