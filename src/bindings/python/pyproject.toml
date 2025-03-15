@@ -5,7 +5,21 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "usbbluetooth"
 dynamic = ["version"]
+authors = [
+    { name = "Antonio Vázquez Blanco", email = "antoniovazquezblanco@gmail.com" },
+]
+description = "Take full control of your USB Bluetooth controllers!"
+readme = "README.md"
+requires-python = ">=3.0"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
 dependencies = []
+
+[project.urls]
+"Homepage" = "https://github.com/antoniovazquezblanco/usbbluetooth"
+"Bug Tracker" = "https://github.com/antoniovazquezblanco/usbbluetooth/issues"
 
 [tool.setuptools_scm]
 root = "../../../"
