@@ -10,13 +10,11 @@ jobs:
           - { os: windows-latest, shell: 'msys2 {0}', ext: dll    }
           - { os: ubuntu-latest,  shell: bash,        ext: so     }
           - { os: macos-latest,   shell: bash,        ext: dylib  }
-
+    name: Build library on ${{ matrix.sys.os }}
     runs-on: ${{ matrix.sys.os }}
-
     defaults:
       run:
         shell: ${{ matrix.sys.shell }}
-
     steps:
     - name: Install dependencies (Ubuntu)
       if: matrix.sys.os == 'ubuntu-latest'
@@ -57,8 +55,10 @@ jobs:
           builddir/src/libusbbluetooth/libusbbluetooth.${{ matrix.sys.ext }}
           builddir/winx64_usbbluetooth_*.zip
 
+
   build_bindings_python:
     needs: build_library
+    name: Build Python bindings
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -89,8 +89,10 @@ jobs:
         name: usbbluetooth_python
         path: builddir/src/bindings/python/*
 
+
   build_bindings_csharp:
     needs: build_library
+    name: Build C# bindings
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -121,16 +123,16 @@ jobs:
         name: usbbluetooth_csharp
         path: builddir/src/bindings/csharp/*.nupkg
 
-  release:
+
+  publish_release:
     runs-on: ubuntu-latest
+    name: Publish to Github releases
     needs: [build_library, build_bindings_python, build_bindings_csharp]
     if: contains(github.ref, 'refs/tags/v')
     permissions:
       contents: write
-      packages: write
-
     steps:
-    - name: Download binaries
+    - name: Download artifacts
       uses: actions/download-artifact@v4
 
     - name: Release
@@ -138,7 +140,18 @@ jobs:
       with:
         files: |
           usbbluetooth_*/winx64_usbbluetooth_*.zip
-          usbbluetooth_*/usbbluetooth*.whl
+
+
+  publish_nuget:
+    runs-on: ubuntu-latest
+    name: Publish NuGet package
+    needs: [build_library, build_bindings_python, build_bindings_csharp]
+    if: contains(github.ref, 'refs/tags/v')
+    permissions:
+      packages: write
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -147,3 +160,24 @@ jobs:
 
     - name: Upload to repository
       run: dotnet nuget push usbbluetooth_*/usbbluetooth*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+
+
+  publish_pypi:
+    name: Publish to PyPi
+    needs: [build_library, build_bindings_python, build_bindings_csharp]
+    if: contains(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/usbbluetooth
+    permissions:
+      id-token: write
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: usbbluetooth_python
+        path: dist/
+
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
