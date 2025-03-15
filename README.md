@@ -1,6 +1,8 @@
 # USB Bluetooth
 
 [![Build](https://github.com/antoniovazquezblanco/usbbluetooth/actions/workflows/build.yml/badge.svg)](https://github.com/antoniovazquezblanco/usbbluetooth/actions/workflows/build.yml)
+[![PyPI](https://img.shields.io/pypi/v/usbbluetooth)](https://pypi.org/project/usbbluetooth/)
+[![Snyk](https://snyk.io/advisor/python/usbbluetooth/badge.svg)](https://snyk.io/advisor/python/usbbluetooth)
 
 LibUSB based Bluetooth device driver. Take full control of your USB Bluetooth devices!
 
