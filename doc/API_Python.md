@@ -8,11 +8,6 @@ You may install the package from Pypi:
 pip install usbbluetooth
 ```
 
-The package is also available in wheel format in https://github.com/antoniovazquezblanco/usbbluetooth/releases. After downloading the file, you may install it with pip:
-```bash
-pip install usbbluetooth-*.whl
-```
-
 Once installed, you may follow the example below as a reference on how to list and interact with devices:
 
 ```Python
