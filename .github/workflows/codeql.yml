@@ -16,6 +16,8 @@ jobs:
         include:
         - language: actions
           build-mode: none
+        - language: c-cpp
+          build-mode: autobuild
     name: Analyze ${{ matrix.language }}
     runs-on: 'ubuntu-latest'
     permissions:
