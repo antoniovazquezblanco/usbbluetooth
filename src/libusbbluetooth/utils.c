@@ -1,48 +1,48 @@
 #include <utils.h>
 
-bool _is_ep_dir(const struct libusb_endpoint_descriptor *ep, enum libusb_endpoint_direction dir)
+bool _libusb_is_ep_dir(const struct libusb_endpoint_descriptor *ep, enum libusb_endpoint_direction dir)
 {
     return (ep->bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) == dir;
 }
 
-bool _device_descriptor_is_bluetooth(struct libusb_device_descriptor *desc)
+bool _libusb_device_descriptor_is_bluetooth(struct libusb_device_descriptor *desc)
 {
     return (desc->bDeviceClass == LIBUSB_CLASS_WIRELESS) &&
            (desc->bDeviceSubClass == 0x01 /* SUBCLASS_RF_CONTROLLER */) &&
            (desc->bDeviceProtocol == 0x01 /* PROTOCOL_BLUETOOTH_PRIMARY_CONTROLLER */);
 }
 
-bool _interface_is_bluetooth(const struct libusb_interface_descriptor *interface)
+bool _libusb_interface_is_bluetooth(const struct libusb_interface_descriptor *interface)
 {
     return (interface->bInterfaceClass == LIBUSB_CLASS_WIRELESS) &&
            (interface->bInterfaceSubClass == 0x01 /* SUBCLASS_RF_CONTROLLER */) &&
            (interface->bInterfaceProtocol == 0x01 /* PROTOCOL_BLUETOOTH_PRIMARY_CONTROLLER */);
 }
 
-bool _interface_has_bluetooth_altsetting(const struct libusb_interface *iface)
+bool _libusb_interface_has_bluetooth_altsetting(const struct libusb_interface *iface)
 {
     // Check all altsettings...
     for (int altsetting_idx = 0; altsetting_idx < iface->num_altsetting; altsetting_idx++)
     {
         const struct libusb_interface_descriptor *altsetting = &iface->altsetting[altsetting_idx];
-        if (_interface_is_bluetooth(altsetting))
+        if (_libusb_interface_is_bluetooth(altsetting))
             return true;
     }
     return false;
 }
 
-bool _configuration_has_bluetooth_interface(struct libusb_config_descriptor *config)
+bool _libusb_configuration_has_bluetooth_interface(struct libusb_config_descriptor *config)
 {
     for (int iface_idx = 0; iface_idx < config->bNumInterfaces; iface_idx++)
     {
         const struct libusb_interface *iface = &config->interface[iface_idx];
-        if (_interface_has_bluetooth_altsetting(iface))
+        if (_libusb_interface_has_bluetooth_altsetting(iface))
             return true;
     }
     return false;
 }
 
-int _is_bluetooth_device(libusb_device *dev, bool *is_bt)
+int _libusb_is_bluetooth_device(libusb_device *dev, bool *is_bt)
 {
     *is_bt = false;
 
@@ -51,7 +51,7 @@ int _is_bluetooth_device(libusb_device *dev, bool *is_bt)
     int r = libusb_get_device_descriptor(dev, &desc);
     if (r < LIBUSB_SUCCESS)
         return r;
-    if (_device_descriptor_is_bluetooth(&desc))
+    if (_libusb_device_descriptor_is_bluetooth(&desc))
     {
         *is_bt = true;
         return LIBUSB_SUCCESS;
@@ -64,7 +64,7 @@ int _is_bluetooth_device(libusb_device *dev, bool *is_bt)
         r = libusb_get_config_descriptor(dev, config_idx, &config);
         if (r < LIBUSB_SUCCESS)
             return r;
-        if (_configuration_has_bluetooth_interface(config))
+        if (_libusb_configuration_has_bluetooth_interface(config))
         {
             *is_bt = true;
             return LIBUSB_SUCCESS;
@@ -74,7 +74,7 @@ int _is_bluetooth_device(libusb_device *dev, bool *is_bt)
     return LIBUSB_SUCCESS;
 }
 
-int _dev_find_bluetooth_interface(libusb_device *dev, uint8_t *interface_number)
+int _libusb_dev_find_bluetooth_interface(libusb_device *dev, uint8_t *interface_number)
 {
     // Check device descriptor...
     struct libusb_device_descriptor desc;
@@ -97,7 +97,7 @@ int _dev_find_bluetooth_interface(libusb_device *dev, uint8_t *interface_number)
             for (int altsetting_idx = 0; altsetting_idx < iface->num_altsetting; altsetting_idx++)
             {
                 const struct libusb_interface_descriptor *altsetting = &iface->altsetting[altsetting_idx];
-                if (_interface_is_bluetooth(altsetting))
+                if (_libusb_interface_is_bluetooth(altsetting))
                 {
                     *interface_number = altsetting->bInterfaceNumber;
                     return LIBUSB_SUCCESS;
@@ -109,7 +109,7 @@ int _dev_find_bluetooth_interface(libusb_device *dev, uint8_t *interface_number)
     return LIBUSB_ERROR_NOT_FOUND;
 }
 
-int _dev_find_ep(libusb_device *dev, uint8_t *epnum, enum libusb_endpoint_direction dir, enum libusb_endpoint_transfer_type transfer_type)
+int _libusb_dev_find_ep(libusb_device *dev, uint8_t *epnum, enum libusb_endpoint_direction dir, enum libusb_endpoint_transfer_type transfer_type)
 {
         // Get currently active config...
     struct libusb_config_descriptor *config;
@@ -124,12 +124,12 @@ int _dev_find_ep(libusb_device *dev, uint8_t *epnum, enum libusb_endpoint_direct
         for (int altsetting_idx = 0; altsetting_idx < iface->num_altsetting; altsetting_idx++)
         {
             const struct libusb_interface_descriptor *altsetting = &iface->altsetting[altsetting_idx];
-            if (_interface_is_bluetooth(altsetting))
+            if (_libusb_interface_is_bluetooth(altsetting))
             {
                 for (int ep_idx = 0; ep_idx < altsetting->bNumEndpoints; ep_idx++)
                 {
                     const struct libusb_endpoint_descriptor *ep_desc = &altsetting->endpoint[ep_idx];
-                    if (_is_ep_dir(ep_desc, dir) && ep_desc->bmAttributes == transfer_type)
+                    if (_libusb_is_ep_dir(ep_desc, dir) && ep_desc->bmAttributes == transfer_type)
                     {
                         *epnum = ep_desc->bEndpointAddress;
                         return LIBUSB_SUCCESS;
@@ -143,17 +143,17 @@ int _dev_find_ep(libusb_device *dev, uint8_t *epnum, enum libusb_endpoint_direct
     return LIBUSB_ERROR_NOT_FOUND;
 }
 
-int _dev_find_evt_ep(libusb_device *dev, uint8_t *epnum)
+int _libusb_dev_find_evt_ep(libusb_device *dev, uint8_t *epnum)
 {
-    return _dev_find_ep(dev, epnum, LIBUSB_ENDPOINT_IN, LIBUSB_ENDPOINT_TRANSFER_TYPE_INTERRUPT);
+    return _libusb_dev_find_ep(dev, epnum, LIBUSB_ENDPOINT_IN, LIBUSB_ENDPOINT_TRANSFER_TYPE_INTERRUPT);
 }
 
-int _dev_find_acl_in_ep(libusb_device *dev, uint8_t *epnum)
+int _libusb_dev_find_acl_in_ep(libusb_device *dev, uint8_t *epnum)
 {
-    return _dev_find_ep(dev, epnum, LIBUSB_ENDPOINT_IN, LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK);
+    return _libusb_dev_find_ep(dev, epnum, LIBUSB_ENDPOINT_IN, LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK);
 }
 
-int _dev_find_acl_out_ep(libusb_device *dev, uint8_t *epnum)
+int _libusb_dev_find_acl_out_ep(libusb_device *dev, uint8_t *epnum)
 {
-    return _dev_find_ep(dev, epnum, LIBUSB_ENDPOINT_OUT, LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK);
+    return _libusb_dev_find_ep(dev, epnum, LIBUSB_ENDPOINT_OUT, LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK);
 }

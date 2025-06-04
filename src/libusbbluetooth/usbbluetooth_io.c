@@ -23,7 +23,7 @@ usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_open(usbbluetooth_device_t 
     if (err < LIBUSB_SUCCESS)
         return USBBLUETOOTH_STATUS_ERR_UNK;
 
-    err = _dev_find_bluetooth_interface(dev->device.usb, &dev->context.usb->interface_num);
+    err = _libusb_dev_find_bluetooth_interface(dev->device.usb, &dev->context.usb->interface_num);
     if (err < LIBUSB_SUCCESS)
         return USBBLUETOOTH_STATUS_ERR_UNK;
 
@@ -35,15 +35,15 @@ usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_open(usbbluetooth_device_t 
     if (err < LIBUSB_SUCCESS)
         return USBBLUETOOTH_STATUS_ERR_UNK;
 
-    err = _dev_find_evt_ep(dev->device.usb, &dev->context.usb->epnum_evt);
+    err = _libusb_dev_find_evt_ep(dev->device.usb, &dev->context.usb->epnum_evt);
     if (err < LIBUSB_SUCCESS)
         return USBBLUETOOTH_STATUS_ERR_UNK;
 
-    err = _dev_find_acl_in_ep(dev->device.usb, &dev->context.usb->epnum_acl_in);
+    err = _libusb_dev_find_acl_in_ep(dev->device.usb, &dev->context.usb->epnum_acl_in);
     if (err < LIBUSB_SUCCESS)
         return USBBLUETOOTH_STATUS_ERR_UNK;
 
-    err = _dev_find_acl_out_ep(dev->device.usb, &dev->context.usb->epnum_acl_out);
+    err = _libusb_dev_find_acl_out_ep(dev->device.usb, &dev->context.usb->epnum_acl_out);
     if (err < LIBUSB_SUCCESS)
         return USBBLUETOOTH_STATUS_ERR_UNK;
 
