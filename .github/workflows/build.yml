@@ -23,18 +23,18 @@ jobs:
       if: matrix.sys.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install meson libusb-1.0-0 libusb-1.0-0-dev
+        sudo apt-get install meson libusb-1.0-0 libusb-1.0-0-dev libserialport-dev
 
     - name: Install dependencies (Mac OS)
       if: matrix.sys.os == 'macos-latest'
-      run: brew install meson
+      run: brew install meson libserialport
 
     - name: Install dependencies (Windows)
       if: matrix.sys.os == 'windows-latest'
       uses: msys2/setup-msys2@v2
       with:
         msystem: UCRT64
-        install: git mingw-w64-ucrt-x86_64-meson mingw-w64-ucrt-x86_64-libusb mingw-w64-ucrt-x86_64-ca-certificates mingw-w64-ucrt-x86_64-python-certifi mingw-w64-ucrt-x86_64-gcc
+        install: git mingw-w64-ucrt-x86_64-meson mingw-w64-ucrt-x86_64-libusb mingw-w64-ucrt-x86_64-ca-certificates mingw-w64-ucrt-x86_64-python-certifi mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-libserialport
 
     - name: Checkout
       uses: actions/checkout@v4
@@ -75,7 +75,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install meson libusb-1.0-0 libusb-1.0-0-dev python3-build
+        sudo apt-get install meson libusb-1.0-0 libusb-1.0-0-dev libserialport-dev python3-build
 
     - name: Copy library
       run: cp usbbluetooth_*/src/libusbbluetooth/*.{so,dll,dylib} src/bindings/python/usbbluetooth/lib/
@@ -109,7 +109,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install meson dotnet-sdk-8.0
+        sudo apt-get install meson libusb-1.0-0 libusb-1.0-0-dev libserialport-dev dotnet-sdk-8.0
 
     - name: Copy library
       run: cp usbbluetooth_*/src/libusbbluetooth/*.{so,dll,dylib} src/bindings/csharp/UsbBluetooth/
