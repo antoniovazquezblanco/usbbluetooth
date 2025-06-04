@@ -111,7 +111,7 @@ int _libusb_dev_find_bluetooth_interface(libusb_device *dev, uint8_t *interface_
 
 int _libusb_dev_find_ep(libusb_device *dev, uint8_t *epnum, enum libusb_endpoint_direction dir, enum libusb_endpoint_transfer_type transfer_type)
 {
-        // Get currently active config...
+    // Get currently active config...
     struct libusb_config_descriptor *config;
     int err = libusb_get_active_config_descriptor(dev, &config);
     if (err < LIBUSB_SUCCESS)
@@ -156,4 +156,10 @@ int _libusb_dev_find_acl_in_ep(libusb_device *dev, uint8_t *epnum)
 int _libusb_dev_find_acl_out_ep(libusb_device *dev, uint8_t *epnum)
 {
     return _libusb_dev_find_ep(dev, epnum, LIBUSB_ENDPOINT_OUT, LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK);
+}
+
+int _ser_is_bluetooth_device(struct sp_port *dev, bool *is_bt)
+{
+    *is_bt = false;
+    return LIBUSB_SUCCESS;
 }

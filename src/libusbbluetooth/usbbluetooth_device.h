@@ -3,8 +3,9 @@
 
 #include <usbbluetooth_api.h>
 #include <usbbluetooth_err.h>
-#include <stdint.h>
 #include <libusb.h>
+#include <libserialport.h>
+#include <stdint.h>
 
 /**
  * Device type enumeration.
@@ -14,7 +15,6 @@ typedef enum
     USBBLUETOOTH_DEVICE_TYPE_USB = 0,
     USBBLUETOOTH_DEVICE_TYPE_SERIAL = 1
 } usbbluetooth_device_type_t;
-
 
 /**
  * USB device context structure.
@@ -38,6 +38,7 @@ typedef struct
     union
     {
         libusb_device *usb;
+        struct sp_port *ser;
     } device;
     union
     {

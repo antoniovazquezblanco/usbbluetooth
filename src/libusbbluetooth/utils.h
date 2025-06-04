@@ -2,7 +2,9 @@
 #define _H_UTILS_
 
 #include <libusb.h>
+#include <libserialport.h>
 #include <stdbool.h>
+
 
 /**
  * Check if endpoint has the specifified direction.
@@ -19,5 +21,7 @@ int _libusb_dev_find_bluetooth_interface(libusb_device *dev, uint8_t *interface_
 int _libusb_dev_find_evt_ep(libusb_device *dev, uint8_t *epnum);
 int _libusb_dev_find_acl_in_ep(libusb_device *dev, uint8_t *epnum);
 int _libusb_dev_find_acl_out_ep(libusb_device *dev, uint8_t *epnum);
+
+int _ser_is_bluetooth_device(struct sp_port *dev, bool *is_bt);
 
 #endif

@@ -7,7 +7,9 @@
 #include <stdio.h>
 
 static int _libusb_count_bluetooth_devices(libusb_device **list, int *num);
+static int _serial_count_bluetooth_devices(struct sp_port **list, int *num);
 static usbbluetooth_device_t *_dev_from_libusb(libusb_device *dev);
+static usbbluetooth_device_t *_dev_from_serial(struct sp_port *dev);
 
 usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_get_device_list(usbbluetooth_device_t ***list_ptr)
 {
@@ -29,6 +31,18 @@ usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_get_device_list(usbbluetoot
     r = _libusb_count_bluetooth_devices(devs_internal_usb, &num_devs);
     usbbluetooth_log_debug("_libusb_count_bluetooth_devices[r=%d, n=%d]", r, num_devs);
     if (r < LIBUSB_SUCCESS)
+        return USBBLUETOOTH_STATUS_ERR_UNK;
+
+    // Get a list of all Serial devices...
+    struct sp_port **devs_internal_ser;
+    enum sp_return r_sp = sp_list_ports(&devs_internal_ser);
+    if (r_sp != SP_OK)
+        return USBBLUETOOTH_STATUS_ERR_UNK;
+
+    // Count the number of serial Bluetooth devices...
+    r = _serial_count_bluetooth_devices(devs_internal_ser, &num_devs);
+    usbbluetooth_log_debug("_count_serial_bluetooth_devices[r=%d, n=%d]", r, num_devs);
+    if (r < LIBUSB_SUCCESS) // TODO
         return USBBLUETOOTH_STATUS_ERR_UNK;
 
     // Create a new list!
@@ -53,8 +67,20 @@ usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_get_device_list(usbbluetoot
         }
     }
 
+    // Iterate serial again...
+    struct sp_port *dev_ser;
+    for (int i = 0, pos = 0; (dev_ser = devs_internal_ser[i]) != NULL; i++)
+    {
+        bool is_bt = false;
+        if (_ser_is_bluetooth_device(dev_ser, &is_bt) == LIBUSB_SUCCESS && is_bt)
+        {
+            list[pos++] = usbbluetooth_reference_device(_dev_from_serial(dev_ser));
+        }
+    }
+
     // Cleanup
     libusb_free_device_list(devs_internal_usb, 1);
+    sp_free_port_list(devs_internal_ser);
 
     return USBBLUETOOTH_STATUS_OK;
 }
@@ -81,6 +107,25 @@ static int _libusb_count_bluetooth_devices(libusb_device **list, int *num)
     return LIBUSB_SUCCESS;
 }
 
+static int _serial_count_bluetooth_devices(struct sp_port **list, int *num)
+{
+    // Iterate all devices...
+    struct sp_port *dev;
+    for (int i = 0; (dev = list[i]) != NULL; i++)
+    {
+        // Check if device is a Bluetooth controller...
+        bool is_bt = false;
+        int r = _ser_is_bluetooth_device(dev, &is_bt);
+        if (r == LIBUSB_ERROR_NOT_FOUND)
+            is_bt = false;
+        else if (r < LIBUSB_SUCCESS)
+            return r;
+        if (is_bt)
+            (*num)++;
+    }
+    return LIBUSB_SUCCESS;
+}
+
 static usbbluetooth_device_t *_dev_from_libusb(libusb_device *dev)
 {
     usbbluetooth_log_debug("_dev_from_libusb[dev=%p]", dev);
@@ -91,6 +136,15 @@ static usbbluetooth_device_t *_dev_from_libusb(libusb_device *dev)
     usbbluetooth_device_ctx_usb_t *ctx = calloc(1, sizeof(usbbluetooth_device_ctx_usb_t));
     memset(ctx, 0, sizeof(usbbluetooth_device_ctx_usb_t));
     btdev->context.usb = ctx;
+    return btdev;
+}
+
+static usbbluetooth_device_t *_dev_from_serial(struct sp_port *dev)
+{
+    usbbluetooth_device_t *btdev = calloc(1, sizeof(usbbluetooth_device_t));
+    btdev->ref_count = 0;
+    btdev->type = USBBLUETOOTH_DEVICE_TYPE_SERIAL;
+    btdev->device.ser = dev;
     return btdev;
 }
 
