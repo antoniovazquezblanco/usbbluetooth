@@ -1,7 +1,8 @@
 # Check if libusb is present, otherwise build it...
 # Statically link it in Windows targets
-libusb_static = target_machine.system() == 'windows' or target_machine.system() == 'cygwin'
-libusb_dep = dependency('libusb-1.0', static : libusb_static)
+libs_static = target_machine.system() == 'windows' or target_machine.system() == 'cygwin'
+libusb_dep = dependency('libusb-1.0', static : libs_static)
+libserialport_dep = dependency('libserialport', static : libs_static)
 
 # Project library
 libusbbluetooth_inc = include_directories('.')
@@ -27,7 +28,7 @@ libusbbluetooth_target = library('usbbluetooth',
   include_directories: libusbbluetooth_inc,
   install: true,
   vs_module_defs : 'usbbluetooth.def',
-  dependencies : libusb_dep)
+  dependencies : [libusb_dep, libserialport_dep])
 
 # Header installation
 install_headers(libusbbluetooth_pub_headers, subdir : 'usbbluetooth')
@@ -44,5 +45,5 @@ pkg_mod.generate(
 libusbbluetooth_dep = declare_dependency(
   include_directories: libusbbluetooth_inc,
   link_with : libusbbluetooth_target,
-  dependencies : libusb_dep
+  dependencies : [libusb_dep, libserialport_dep]
 )
