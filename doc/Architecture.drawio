@@ -1,0 +1,73 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:139.0) Gecko/20100101 Firefox/139.0" version="27.1.4">
+  <diagram name="Página-1" id="k6wmBAj1fOMaCmAw5eD7">
+    <mxGraphModel dx="641" dy="1168" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-1" value="&lt;div&gt;USB Controller&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="141" y="585" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-3" value="" style="swimlane;startSize=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="140" width="440" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-6" value="&lt;div&gt;Host&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="Ms9mSGChrX7GCn_G78cy-3">
+          <mxGeometry width="50" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-19" value="" style="swimlane;startSize=0;" vertex="1" parent="Ms9mSGChrX7GCn_G78cy-3">
+          <mxGeometry x="21" y="40" width="399" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-5" value="&lt;div&gt;USB Driver&lt;/div&gt;&lt;div&gt;(LibUSB)&lt;/div&gt;" style="whiteSpace=wrap;html=1;" vertex="1" parent="Ms9mSGChrX7GCn_G78cy-19">
+          <mxGeometry x="50" y="250" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-8" value="&lt;div&gt;USB Transport Layer&lt;/div&gt;" style="whiteSpace=wrap;html=1;" vertex="1" parent="Ms9mSGChrX7GCn_G78cy-19">
+          <mxGeometry x="209" y="130" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" edge="1" parent="Ms9mSGChrX7GCn_G78cy-19" source="Ms9mSGChrX7GCn_G78cy-8" target="Ms9mSGChrX7GCn_G78cy-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-10" value="&lt;div&gt;Common HCI interface&lt;br&gt;&lt;br&gt;Allows for device communication&lt;/div&gt;" style="whiteSpace=wrap;html=1;" vertex="1" parent="Ms9mSGChrX7GCn_G78cy-19">
+          <mxGeometry x="209" y="40" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" edge="1" parent="Ms9mSGChrX7GCn_G78cy-19" source="Ms9mSGChrX7GCn_G78cy-10" target="Ms9mSGChrX7GCn_G78cy-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-11" value="Controller discovery API&lt;br&gt;&lt;br&gt;Allows for device listing" style="whiteSpace=wrap;html=1;" vertex="1" parent="Ms9mSGChrX7GCn_G78cy-19">
+          <mxGeometry x="49" y="40" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.28;exitY=-0.004;exitDx=0;exitDy=0;startArrow=classic;startFill=1;exitPerimeter=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="Ms9mSGChrX7GCn_G78cy-19" source="Ms9mSGChrX7GCn_G78cy-5" target="Ms9mSGChrX7GCn_G78cy-11">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="69" y="20" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-20" value="&lt;div&gt;USB Bluetooth&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="Ms9mSGChrX7GCn_G78cy-19">
+          <mxGeometry x="9" y="-2" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-22" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="Ms9mSGChrX7GCn_G78cy-19">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="278.65999999999997" y="40" as="sourcePoint" />
+            <mxPoint x="278.65999999999997" y="-20" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-23" value="HCI" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Ms9mSGChrX7GCn_G78cy-22">
+          <mxGeometry x="-0.0897" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" edge="1" parent="1" source="Ms9mSGChrX7GCn_G78cy-5" target="Ms9mSGChrX7GCn_G78cy-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-17" value="USB" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Ms9mSGChrX7GCn_G78cy-16">
+          <mxGeometry x="-0.2" y="2" relative="1" as="geometry">
+            <mxPoint x="-2" y="32" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ms9mSGChrX7GCn_G78cy-21" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="Ms9mSGChrX7GCn_G78cy-11">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="201" y="130" as="sourcePoint" />
+            <mxPoint x="200" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -16,3 +16,8 @@ In Windows you may have to install WinUSB driver in your device using Zadig. Oth
 This library has been programmed in C. You can find information on how to compile, install and use it in the [C API document](API_C.md).
 
 You can also find documentation for the [Python API](API_Python.md) or the [C# API](API_CSharp.md).
+
+
+## Architecture
+
+You may find more information about the design and architecture of this software in the [Architecture](Architecture.md) document.
