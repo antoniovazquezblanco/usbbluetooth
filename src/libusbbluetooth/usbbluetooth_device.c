@@ -42,7 +42,7 @@ usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_get_device_list(usbbluetoot
     // Count the number of serial Bluetooth devices...
     r = _serial_count_bluetooth_devices(devs_internal_ser, &num_devs);
     usbbluetooth_log_debug("_count_serial_bluetooth_devices[r=%d, n=%d]", r, num_devs);
-    if (r < LIBUSB_SUCCESS) // TODO
+    if (r < LIBUSB_SUCCESS)
         return USBBLUETOOTH_STATUS_ERR_UNK;
 
     // Create a new list!
