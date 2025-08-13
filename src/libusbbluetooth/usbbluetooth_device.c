@@ -274,13 +274,31 @@ char *USBBLUETOOTH_CALL usbbluetooth_device_manufacturer(usbbluetooth_device_t *
     }
 }
 
-char *USBBLUETOOTH_CALL usbbluetooth_device_product(usbbluetooth_device_t *dev)
+char *_dev_product_usb(usbbluetooth_device_t *dev)
 {
     struct libusb_device_descriptor desc;
     libusb_get_device_descriptor(dev->device.usb, &desc);
     if (desc.iProduct == 0)
         return NULL;
     return _usb_get_descriptor_ascii(dev->context.usb->handle, desc.iProduct);
+}
+
+char *_dev_product_ser(usbbluetooth_device_t *dev)
+{
+    return sp_get_port_usb_product(dev->device.ser);
+}
+
+char *USBBLUETOOTH_CALL usbbluetooth_device_product(usbbluetooth_device_t *dev)
+{
+    switch (dev->type)
+    {
+    case USBBLUETOOTH_DEVICE_TYPE_USB:
+        return _dev_product_usb(dev);
+    case USBBLUETOOTH_DEVICE_TYPE_SERIAL:
+        return _dev_product_ser(dev);
+    default:
+        return NULL;
+    }
 }
 
 char *USBBLUETOOTH_CALL usbbluetooth_device_serial_num(usbbluetooth_device_t *dev)
