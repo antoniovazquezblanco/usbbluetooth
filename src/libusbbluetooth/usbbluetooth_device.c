@@ -301,7 +301,7 @@ char *USBBLUETOOTH_CALL usbbluetooth_device_product(usbbluetooth_device_t *dev)
     }
 }
 
-char *USBBLUETOOTH_CALL usbbluetooth_device_serial_num(usbbluetooth_device_t *dev)
+char *_dev_serial_num_usb(usbbluetooth_device_t *dev)
 {
     struct libusb_device_descriptor desc;
     libusb_get_device_descriptor(dev->device.usb, &desc);
@@ -310,7 +310,25 @@ char *USBBLUETOOTH_CALL usbbluetooth_device_serial_num(usbbluetooth_device_t *de
     return _usb_get_descriptor_ascii(dev->context.usb->handle, desc.iSerialNumber);
 }
 
-char *USBBLUETOOTH_CALL usbbluetooth_device_description(usbbluetooth_device_t *dev)
+char *_dev_serial_num_ser(usbbluetooth_device_t *dev)
+{
+    return sp_get_port_usb_serial(dev->device.ser);
+}
+
+char *USBBLUETOOTH_CALL usbbluetooth_device_serial_num(usbbluetooth_device_t *dev)
+{
+    switch (dev->type)
+    {
+    case USBBLUETOOTH_DEVICE_TYPE_USB:
+        return _dev_serial_num_usb(dev);
+    case USBBLUETOOTH_DEVICE_TYPE_SERIAL:
+        return _dev_serial_num_ser(dev);
+    default:
+        return NULL;
+    }
+}
+
+char *_dev_description_usb(usbbluetooth_device_t *dev)
 {
     // Get USB descriptor
     struct libusb_device_descriptor desc;
@@ -340,4 +358,22 @@ char *USBBLUETOOTH_CALL usbbluetooth_device_description(usbbluetooth_device_t *d
         free(sernum);
     }
     return strdup(tmp);
+}
+
+char *_dev_description_ser(usbbluetooth_device_t *dev)
+{
+    return sp_get_port_description(dev->device.ser);
+}
+
+char *USBBLUETOOTH_CALL usbbluetooth_device_description(usbbluetooth_device_t *dev)
+{
+    switch (dev->type)
+    {
+    case USBBLUETOOTH_DEVICE_TYPE_USB:
+        return _dev_description_usb(dev);
+    case USBBLUETOOTH_DEVICE_TYPE_SERIAL:
+        return _dev_description_ser(dev);
+    default:
+        return NULL;
+    }
 }
