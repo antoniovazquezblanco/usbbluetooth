@@ -208,7 +208,8 @@ void _dev_vid_pid_usb(usbbluetooth_device_t *dev, uint16_t *vid, uint16_t *pid)
 void _dev_vid_pid_ser(usbbluetooth_device_t *dev, uint16_t *vid, uint16_t *pid)
 {
     enum sp_transport tp = sp_get_port_transport(dev->device.ser);
-    if (tp == SP_TRANSPORT_USB) {
+    if (tp == SP_TRANSPORT_USB)
+    {
         int usb_vid, usb_pid;
         sp_get_port_usb_vid_pid(dev->device.ser, &usb_vid, &usb_pid);
         *vid = usb_vid;
@@ -246,13 +247,31 @@ char *_usb_get_descriptor_ascii(libusb_device_handle *dev_handle, uint8_t desc_n
     return strdup(tmp);
 }
 
-char *USBBLUETOOTH_CALL usbbluetooth_device_manufacturer(usbbluetooth_device_t *dev)
+char *_dev_manufacturer_usb(usbbluetooth_device_t *dev)
 {
     struct libusb_device_descriptor desc;
     libusb_get_device_descriptor(dev->device.usb, &desc);
     if (desc.iManufacturer == 0)
         return NULL;
     return _usb_get_descriptor_ascii(dev->context.usb->handle, desc.iManufacturer);
+}
+
+char *_dev_manufacturer_ser(usbbluetooth_device_t *dev)
+{
+    return sp_get_port_usb_manufacturer(dev->device.ser);
+}
+
+char *USBBLUETOOTH_CALL usbbluetooth_device_manufacturer(usbbluetooth_device_t *dev)
+{
+    switch (dev->type)
+    {
+    case USBBLUETOOTH_DEVICE_TYPE_USB:
+        return _dev_manufacturer_usb(dev);
+    case USBBLUETOOTH_DEVICE_TYPE_SERIAL:
+        return _dev_manufacturer_ser(dev);
+    default:
+        return NULL;
+    }
 }
 
 char *USBBLUETOOTH_CALL usbbluetooth_device_product(usbbluetooth_device_t *dev)
