@@ -99,7 +99,7 @@ void USBBLUETOOTH_CALL usbbluetooth_close(usbbluetooth_device_t *dev)
     }
 }
 
-usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_write(usbbluetooth_device_t *dev, uint8_t *data, uint16_t size)
+usbbluetooth_status_t _write_usb(usbbluetooth_device_t *dev, uint8_t *data, uint16_t size)
 {
     if (dev->context.usb->handle == NULL)
         return USBBLUETOOTH_STATUS_ERR_DEVICE_CLOSED;
@@ -122,7 +122,28 @@ usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_write(usbbluetooth_device_t
     }
 }
 
-int _read_data(usbbluetooth_device_t *dev, uint8_t *data, uint16_t *size)
+usbbluetooth_status_t _write_ser(usbbluetooth_device_t *dev, uint8_t *data, uint16_t size)
+{
+    enum sp_return err = sp_blocking_write(dev->device.ser, data, size, 2000);
+    if (err < SP_OK || err < size)
+        return USBBLUETOOTH_STATUS_ERR_UNK;
+    return USBBLUETOOTH_STATUS_OK;
+}
+
+usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_write(usbbluetooth_device_t *dev, uint8_t *data, uint16_t size)
+{
+    switch (dev->type)
+    {
+    case USBBLUETOOTH_DEVICE_TYPE_USB:
+        return _write_usb(dev, data, size);
+    case USBBLUETOOTH_DEVICE_TYPE_SERIAL:
+        return _write_ser(dev, data, size);
+    default:
+        return USBBLUETOOTH_STATUS_ERR_UNK;
+    }
+}
+
+int _read_usb_data(usbbluetooth_device_t *dev, uint8_t *data, uint16_t *size)
 {
     int recevd = 0;
     int err = libusb_bulk_transfer(dev->context.usb->handle, dev->context.usb->epnum_acl_in, &data[1], (*size) - 1, &recevd, TIMEOUT);
@@ -133,7 +154,7 @@ int _read_data(usbbluetooth_device_t *dev, uint8_t *data, uint16_t *size)
     return LIBUSB_SUCCESS;
 }
 
-int _read_evts(usbbluetooth_device_t *dev, uint8_t *data, uint16_t *size)
+int _read_usb_evts(usbbluetooth_device_t *dev, uint8_t *data, uint16_t *size)
 {
     int recevd = 0;
     int err = libusb_interrupt_transfer(dev->context.usb->handle, dev->context.usb->epnum_evt, &data[1], (*size) - 1, &recevd, TIMEOUT);
@@ -144,19 +165,17 @@ int _read_evts(usbbluetooth_device_t *dev, uint8_t *data, uint16_t *size)
     return LIBUSB_SUCCESS;
 }
 
-usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_read(usbbluetooth_device_t *dev, uint8_t *data, uint16_t *size)
+usbbluetooth_status_t _read_usb(usbbluetooth_device_t *dev, uint8_t *data, uint16_t *size)
 {
-    usbbluetooth_log_debug("usbbluetooth_read");
-
     if (dev->context.usb->handle == NULL)
         return USBBLUETOOTH_STATUS_ERR_DEVICE_CLOSED;
 
-    int err = _read_evts(dev, data, size);
+    int err = _read_usb_evts(dev, data, size);
     usbbluetooth_log_debug("_read_evts[err=%d, size=%d]", err, *size);
     if (err != LIBUSB_ERROR_TIMEOUT)
         return (err == LIBUSB_SUCCESS) ? USBBLUETOOTH_STATUS_OK : USBBLUETOOTH_STATUS_ERR_UNK;
 
-    err = _read_data(dev, data, size);
+    err = _read_usb_data(dev, data, size);
     usbbluetooth_log_debug("_read_data[err=%d, size=%d]", err, *size);
     if (err != LIBUSB_ERROR_TIMEOUT)
         return (err == LIBUSB_SUCCESS) ? USBBLUETOOTH_STATUS_OK : USBBLUETOOTH_STATUS_ERR_UNK;
@@ -164,4 +183,27 @@ usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_read(usbbluetooth_device_t 
     // No data to retrieve...
     *size = 0;
     return USBBLUETOOTH_STATUS_OK;
+}
+
+usbbluetooth_status_t _read_ser(usbbluetooth_device_t *dev, uint8_t *data, uint16_t *size)
+{
+    enum sp_return err = sp_nonblocking_read(dev->device.ser, data, *size);
+    if (err < SP_OK)
+        return USBBLUETOOTH_STATUS_ERR_UNK;
+    *size = err;
+    return USBBLUETOOTH_STATUS_OK;
+}
+
+usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_read(usbbluetooth_device_t *dev, uint8_t *data, uint16_t *size)
+{
+    usbbluetooth_log_debug("usbbluetooth_read");
+    switch (dev->type)
+    {
+    case USBBLUETOOTH_DEVICE_TYPE_USB:
+        return _read_usb(dev, data, size);
+    case USBBLUETOOTH_DEVICE_TYPE_SERIAL:
+        return _read_ser(dev, data, size);
+    default:
+        return USBBLUETOOTH_STATUS_ERR_UNK;
+    }
 }
