@@ -7,6 +7,12 @@
 
 #define BUFFSIZE 64
 
+static void print_hex(uint8_t *data, uint16_t len)
+{
+    for (int i = 0; i < len; i++)
+        printf("%02x", data[i]);
+}
+
 static usbbluetooth_status_t reset_dev(usbbluetooth_device_t *dev)
 {
     char *desc = usbbluetooth_device_description(dev);
@@ -25,6 +31,7 @@ static usbbluetooth_status_t reset_dev(usbbluetooth_device_t *dev)
     free(desc);
 
     // Send encoded HCI reset
+    printf("Sending a reset HCI command...\n");
     r = usbbluetooth_write(dev, (uint8_t *)"\x01\x03\x0c\x00", 4);
     if (r != USBBLUETOOTH_STATUS_OK)
     {
@@ -32,6 +39,7 @@ static usbbluetooth_status_t reset_dev(usbbluetooth_device_t *dev)
         goto exit;
     }
 
+    printf("Reading response...\n");
     uint8_t buf[BUFFSIZE];
     memset(buf, 0, BUFFSIZE);
     uint16_t bufsize = BUFFSIZE;
@@ -41,6 +49,15 @@ static usbbluetooth_status_t reset_dev(usbbluetooth_device_t *dev)
         fprintf(stderr, "Could not read command response (r=%d, s=%s)\n", (int)r, usbbluetooth_status_name(r));
         goto exit;
     }
+    if (bufsize == 0)
+    {
+        fprintf(stderr, "Device did not reply to our command...\n");
+        goto exit;
+    }
+
+    printf("Got a response: ");
+    print_hex(buf, bufsize);
+    printf("\n");
 
     if (buf[6] != 0)
     {
