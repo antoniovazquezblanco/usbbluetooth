@@ -16,7 +16,7 @@ typedef enum
     HCI_HDR_TYPE_LINK_CONTROL = 15,
 } hci_hdr_type_t;
 
-usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_open(usbbluetooth_device_t *dev)
+static usbbluetooth_status_t _open_usb(usbbluetooth_device_t *dev)
 {
     // Open the device and get a handle...
     int err = libusb_open(dev->device.usb, &dev->context.usb->handle);
@@ -50,13 +50,53 @@ usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_open(usbbluetooth_device_t 
     return USBBLUETOOTH_STATUS_OK;
 }
 
-void USBBLUETOOTH_CALL usbbluetooth_close(usbbluetooth_device_t *dev)
+static usbbluetooth_status_t _open_ser(usbbluetooth_device_t *dev)
+{
+    enum sp_return err = sp_open(dev->device.ser, SP_MODE_READ_WRITE);
+    if (err < SP_OK)
+        return USBBLUETOOTH_STATUS_ERR_UNK;
+
+    return USBBLUETOOTH_STATUS_OK;
+}
+
+usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_open(usbbluetooth_device_t *dev)
+{
+    switch (dev->type)
+    {
+    case USBBLUETOOTH_DEVICE_TYPE_USB:
+        return _open_usb(dev);
+    case USBBLUETOOTH_DEVICE_TYPE_SERIAL:
+        return _open_ser(dev);
+    default:
+        return USBBLUETOOTH_STATUS_ERR_UNK;
+    }
+}
+
+static void _close_usb(usbbluetooth_device_t *dev)
 {
     if (dev->context.usb->handle == NULL)
         return;
     libusb_release_interface(dev->context.usb->handle, dev->context.usb->interface_num);
     libusb_close(dev->context.usb->handle);
     dev->context.usb->handle = NULL;
+}
+
+static void _close_ser(usbbluetooth_device_t *dev)
+{
+    sp_close(dev->device.ser);
+}
+
+void USBBLUETOOTH_CALL usbbluetooth_close(usbbluetooth_device_t *dev)
+{
+    switch (dev->type)
+    {
+    case USBBLUETOOTH_DEVICE_TYPE_USB:
+        _close_usb(dev);
+        break;
+    case USBBLUETOOTH_DEVICE_TYPE_SERIAL:
+        _close_ser(dev);
+        break;
+    }
 }
 
 usbbluetooth_status_t USBBLUETOOTH_CALL usbbluetooth_write(usbbluetooth_device_t *dev, uint8_t *data, uint16_t size)
