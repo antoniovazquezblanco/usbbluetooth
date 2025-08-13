@@ -144,7 +144,7 @@ static usbbluetooth_device_t *_dev_from_serial(struct sp_port *dev)
     usbbluetooth_device_t *btdev = calloc(1, sizeof(usbbluetooth_device_t));
     btdev->ref_count = 0;
     btdev->type = USBBLUETOOTH_DEVICE_TYPE_SERIAL;
-    btdev->device.ser = dev;
+    sp_copy_port(dev, &btdev->device.ser);
     return btdev;
 }
 
@@ -187,6 +187,10 @@ void USBBLUETOOTH_CALL usbbluetooth_unreference_device(usbbluetooth_device_t **d
         {
             libusb_unref_device(dev->device.usb);
             free(dev->context.usb);
+        }
+        else if (dev->type == USBBLUETOOTH_DEVICE_TYPE_SERIAL)
+        {
+            sp_free_port(dev->device.ser);
         }
         free(dev);
         *dev_ptr = NULL;
