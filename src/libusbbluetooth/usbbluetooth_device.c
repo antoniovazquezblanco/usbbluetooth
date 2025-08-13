@@ -258,7 +258,7 @@ char *_dev_manufacturer_usb(usbbluetooth_device_t *dev)
 
 char *_dev_manufacturer_ser(usbbluetooth_device_t *dev)
 {
-    return sp_get_port_usb_manufacturer(dev->device.ser);
+    return strdup(sp_get_port_usb_manufacturer(dev->device.ser));
 }
 
 char *USBBLUETOOTH_CALL usbbluetooth_device_manufacturer(usbbluetooth_device_t *dev)
@@ -285,7 +285,7 @@ char *_dev_product_usb(usbbluetooth_device_t *dev)
 
 char *_dev_product_ser(usbbluetooth_device_t *dev)
 {
-    return sp_get_port_usb_product(dev->device.ser);
+    return strdup(sp_get_port_usb_product(dev->device.ser));
 }
 
 char *USBBLUETOOTH_CALL usbbluetooth_device_product(usbbluetooth_device_t *dev)
@@ -312,7 +312,7 @@ char *_dev_serial_num_usb(usbbluetooth_device_t *dev)
 
 char *_dev_serial_num_ser(usbbluetooth_device_t *dev)
 {
-    return sp_get_port_usb_serial(dev->device.ser);
+    return strdup(sp_get_port_usb_serial(dev->device.ser));
 }
 
 char *USBBLUETOOTH_CALL usbbluetooth_device_serial_num(usbbluetooth_device_t *dev)
@@ -362,7 +362,7 @@ char *_dev_description_usb(usbbluetooth_device_t *dev)
 
 char *_dev_description_ser(usbbluetooth_device_t *dev)
 {
-    return sp_get_port_description(dev->device.ser);
+    return strdup(sp_get_port_description(dev->device.ser));
 }
 
 char *USBBLUETOOTH_CALL usbbluetooth_device_description(usbbluetooth_device_t *dev)
