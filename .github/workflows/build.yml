@@ -37,7 +37,7 @@ jobs:
         install: git mingw-w64-ucrt-x86_64-meson mingw-w64-ucrt-x86_64-libusb mingw-w64-ucrt-x86_64-ca-certificates mingw-w64-ucrt-x86_64-python-certifi mingw-w64-ucrt-x86_64-gcc
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
@@ -99,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
